@@ -1,0 +1,10 @@
+.DS_Store
+.editorconfig
+.eslintignore
+.gitignore
+.npmignore
+.prettierignore
+node_modules/
+android/
+ios/
+react-native-picker.podspec
