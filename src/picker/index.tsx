@@ -2,62 +2,196 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 10:35:07
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-11-23 15:14:12
+ * @LastEditTime: 2022-12-09 16:44:32
  * @Description: ******
  */
-
-import * as React from 'react';
-import type { Element, ElementRef, ChildrenArray } from 'react';
+import React, { Children, ElementRef, ReactElement, Component } from 'react';
 import {
   Platform,
   StyleSheet,
   View,
   StyleProp,
   ViewStyle,
-  SyntheticEvent,
+  ViewProps,
+  NativeSyntheticEvent,
   requireNativeComponent,
 } from 'react-native';
-import PickerItem from './PickerItem';
+import PickerItem, { PickerItemProps } from './PickerItem';
 import { PickerIOS } from '@react-native-picker/picker';
 
-export type PickerProps = {
+export enum ScrollState {
+  /**
+   * 选择器处于静止状态
+   */
+  IDLE,
+
+  /**
+   * 选择器处于拖动状态（随手指滑动）
+   */
+  DRAGGING,
+
+  /**
+   * 选择器处于滑动状态（惯性滚动）
+   */
+  SCROLLING,
+}
+
+export type ScrollStateEvent = NativeSyntheticEvent<
+  Readonly<{
+    state: ScrollState;
+  }>
+>;
+
+export type ChangeEvent = NativeSyntheticEvent<
+  Readonly<{
+    value: string | number;
+    index: number;
+  }>
+>;
+
+export interface PickerProps extends ViewProps {
   testID?: string;
+
+  /**
+   * 未使用
+   */
   numberOfLines?: number;
-  themeVariant?: string;
+
+  /**
+   * 选择器样式
+   */
   style?: StyleProp<ViewStyle>;
+
+  /**
+   * 选择器Item样式
+   */
   itemStyle?: StyleProp<ViewStyle>;
+
+  /**
+   * 主题风格
+   */
+  themeVariant?: 'dark' | 'light';
+
+  /**
+   * 当前选择的值
+   */
   selectedValue?: number | string;
+
+  /**
+   * 被选值的颜色
+   */
   accentColor?: string;
+
+  /**
+   * 未被选中值的颜色
+   */
   textColor?: string;
+
+  /**
+   * 选择器数据项字体大小
+   */
   textSize?: number;
+
+  /**
+   * 选择器数据项字体
+   */
   fontFamily?: string;
+
+  /**
+   * 选择器数据项间距，似乎无效
+   */
   itemSpace?: number;
+
+  /**
+   * 选择器可见数据项数量
+   */
   itemCount?: number;
+
+  /**
+   * 选择器数据项位置，0：中间，1，左边，2：右边
+   */
   itemAlign?: number;
+
+  /**
+   * 选择器当前选择项是否使用上下边框线
+   */
   indicator?: boolean;
+
+  /**
+   * 边框线颜色
+   */
   indicatorColor?: string;
+
+  /**
+   * 边框线粗细
+   */
   indicatorSize?: number;
+
+  /**
+   * 选择器当前选择项是否使用背景
+   */
   curtain?: boolean;
+
+  /**
+   * 背景颜色
+   */
   curtainColor?: string;
+
+  /**
+   * 背景框是否圆角
+   */
   curtainRound?: boolean;
+
+  /**
+   * 选择器是否有空气感
+   */
   atmospheric?: boolean;
+
+  /**
+   * 选择器是否有卷曲效果
+   */
   curved?: boolean;
+
+  /**
+   * 选择器数据项是否循环显示
+   */
   cyclic?: boolean;
+
+  /**
+   * 设置选择器有相同的宽度，可提升性能
+   */
   widthSame?: boolean;
+
+  /**
+   * 设置选择器最宽文本，可提升性能
+   */
   maxWidthText?: string;
+
+  /**
+   * 设置选择器最宽文本索引，可提升性能
+   */
   maxWidthTextIndex?: number;
-  onValueChange?: (value: string | number, index: number) => void;
-  onChange?: (
-    event: SyntheticEvent<{ value: string | number; index: number }>,
-  ) => void;
-  children: ChildrenArray<Element<typeof PickerItem>>;
-};
+
+  /**
+   * 选择器选择值改变事件，参数：当前选择的值和索引
+   */
+  onValueChange?: (value?: string | number, index?: number) => void;
+
+  /**
+   * 选择器改变事件，参数：含有选择的值和索引的选择事件
+   */
+  onChange?: (event: ChangeEvent) => void;
+
+  /**
+   * 选择器滚轮状态变化事件，参数：含有当前状态值得状态事件
+   */
+  onScrollStateChange?: (event: ScrollStateEvent) => void;
+
+  children?: ReactElement<PickerItemProps>[];
+}
 
 type ItemType = {
   value?: string | number;
-  /**
-   * the picker item display label
-   */
   label?: string;
 };
 
@@ -66,10 +200,12 @@ type State = {
   items: Array<ItemType>;
 };
 
-class Picker extends React.Component {
-  _picker?: ElementRef = null;
+class Picker extends Component<PickerProps, State> {
+  constructor(props: PickerProps) {
+    super(props);
+  }
 
-  props: any;
+  _picker: ElementRef<typeof NativePicker> | null = null;
 
   state: State = {
     selectedIndex: 0,
@@ -82,26 +218,29 @@ class Picker extends React.Component {
     let selectedIndex: number = 0;
     const items: Array<ItemType> = [];
     // 将传入的item子组件属性数据提取出来作为state，传入本地组件items
-    React.Children.toArray(props.children).forEach(function (child, index) {
-      if (child.props.value === props.selectedValue) {
-        selectedIndex = index;
-      }
-      items.push({ value: child.props.value, label: child.props.label });
-    });
+    Children.forEach(
+      props.children || [],
+      function (child: ReactElement<PickerItemProps>, index: number) {
+        if (child.props.value === props.selectedValue) {
+          selectedIndex = index;
+        }
+        items.push({ value: child.props.value, label: child.props.label });
+      },
+    );
     return { selectedIndex, items };
   }
 
-  _onChange = (e) => {
+  _onChange = (e: ChangeEvent) => {
     const { index } = e.nativeEvent;
-    if (this.props.onValueChange) {
+    if (this.props?.onValueChange) {
       this.props.onValueChange(this.state.items[index].value, index);
     }
-    if (this.props.onChange) {
+    if (this.props?.onChange) {
       this.props.onChange({
         ...e,
         nativeEvent: {
-          ...e.nativeEvent,
-          value: this.state.items[index].value,
+          index,
+          value: this.state.items[index].value || 0,
         },
       });
     }
@@ -114,7 +253,7 @@ class Picker extends React.Component {
     }
   };
 
-  render(): React.Node {
+  render() {
     const {
       style,
       itemStyle,
@@ -134,8 +273,9 @@ class Picker extends React.Component {
       onValueChange,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       children,
+      onScrollStateChange,
       ...restProps
-    } = this.props;
+    } = this.props || {};
     let _itemCount = itemCount;
     if (typeof itemCount !== 'undefined') {
       _itemCount = Math.round(itemCount ?? 1);
@@ -164,14 +304,12 @@ class Picker extends React.Component {
       }
       _background = '#000';
     }
-    const items = this.state.items.map(({ label }) => label);
+    const items: Array<string | number> = this.state.items.map(
+      ({ label }) => label || '',
+    );
     return (
       <View
-        style={StyleSheet.flatten([
-          styles.container,
-          [{ backgroundColor: _background }],
-          style,
-        ])}>
+        style={StyleSheet.flatten([style, [{ backgroundColor: _background }]])}>
         <NativePicker
           ref={(picker) => {
             this._picker = picker;
@@ -181,6 +319,7 @@ class Picker extends React.Component {
           items={items}
           selectedIndex={this.state.selectedIndex}
           onChange={this._onChange}
+          onScrollStateChange={onScrollStateChange}
           itemCount={_itemCount}
           textColor={_textColor}
           selectTextColor={_selectTextColor}
@@ -191,14 +330,14 @@ class Picker extends React.Component {
     );
   }
 }
-
-const NativePicker = requireNativeComponent('PickerView', Picker);
+type NativeProps = PickerProps & {
+  items: Array<string | number>;
+  selectedIndex?: number | string;
+  selectTextColor?: string;
+};
+const NativePicker = requireNativeComponent<NativeProps>('PickerView');
 
 const styles = StyleSheet.create({
-  container: {
-    overflow: 'hidden',
-    padding: 12,
-  },
   picker: {
     // The picker will conform to whatever width is given, but we do
     // have to set the component's height explicitly on the
@@ -208,3 +347,5 @@ const styles = StyleSheet.create({
 });
 
 export default Platform.OS === 'android' ? Picker : PickerIOS;
+
+export const PickerAndroid = Picker;

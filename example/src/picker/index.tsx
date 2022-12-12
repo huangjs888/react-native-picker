@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 15:58:16
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-11-23 17:46:56
+ * @LastEditTime: 2022-12-12 09:17:12
  * @Description: ******
  */
 import React, { useState } from 'react';
@@ -13,8 +13,14 @@ import {
   View,
   Modal,
   Button,
+  Switch,
+  Text,
 } from 'react-native';
-import { Picker, DateTimePicker } from '@huangjs888/react-native-picker';
+import {
+  Picker,
+  DateTimePicker,
+  ComposeDateTimePicker,
+} from '@huangjs888/react-native-picker';
 
 const items = [
   { label: 'Sin数据', value: 'key0' },
@@ -30,7 +36,12 @@ const items = [
 
 export default () => {
   const [selectedA, setSelectedA] = useState('key5');
-  const [value, setValue] = useState(new Date(2022, 10, 6, 8, 29, 36, 20));
+  const [value, setValue] = useState(new Date());
+  const [disabled, setDisabled] = useState(false);
+  const [minuteInterval, setMinuteInterval] = useState(false);
+  const [maxMin, setMaxMin] = useState(false);
+  const [is24Hour, setIs24Hour] = useState(false);
+  const [local, setLocal] = useState(false);
   const [visible, setVisible] = useState(false);
   const [param, setParam] = useState([]);
   const click = (display, mode) => {
@@ -43,7 +54,7 @@ export default () => {
         style={[styles.picker]}
         onValueChange={(v) => {
           setSelectedA(v);
-          console.log(v);
+          // console.log(v);
         }}
         selectedValue={selectedA}
         indicator={false}
@@ -106,24 +117,91 @@ export default () => {
                   setVisible(false);
                 }}
               />
+              <Switch
+                value={disabled}
+                onValueChange={() => {
+                  setDisabled(!disabled);
+                }}
+              />
+              <Text>disabled</Text>
+              <Switch
+                value={is24Hour}
+                onValueChange={() => {
+                  setIs24Hour(!is24Hour);
+                }}
+              />
+              <Text>is24Hour</Text>
             </View>
-            <DateTimePicker
-              style={[styles.border]}
-              onChange={(e, selectedDate) => {
-                setValue(selectedDate);
-                console.log(selectedDate);
-                if (!param[0] && param[1]) {
-                  setVisible(false);
+            <View style={[styles.button]}>
+              <Switch
+                value={minuteInterval}
+                onValueChange={() => {
+                  setMinuteInterval(!minuteInterval);
+                }}
+              />
+              <Text>interval</Text>
+              <Switch
+                value={maxMin}
+                onValueChange={() => {
+                  setMaxMin(!maxMin);
+                }}
+              />
+              <Text>Max-Min</Text>
+              <Switch
+                value={local}
+                onValueChange={() => {
+                  setLocal(!local);
+                }}
+              />
+              <Text>local</Text>
+            </View>
+            {!param[0] && !param[1] ? (
+              <ComposeDateTimePicker
+                style={[styles.border]}
+                onChange={(e, selectedDate) => {
+                  setValue(selectedDate);
+                  console.log(selectedDate);
+                  if (!param[0] && param[1]) {
+                    setVisible(false);
+                  }
+                }}
+                value={value}
+                minimumDate={
+                  maxMin ? new Date(2012, 10, 2, 8, 12, 5, 10) : undefined
                 }
-              }}
-              display={param[0]}
-              mode={param[1]}
-              value={value}
-              minimumDate={new Date(2022, 10, 2, 8, 12, 5, 10)}
-              maximumDate={new Date(2022, 10, 10, 13, 42, 30, 1)}
-              is24Hour={false}
-              locale="zh-Hans"
-            />
+                maximumDate={
+                  maxMin ? new Date(2032, 10, 10, 13, 42, 30, 1) : undefined
+                }
+                minuteInterval={minuteInterval ? 5 : 1}
+                disabled={disabled}
+                is24Hour={is24Hour}
+                locale={local ? 'zh-Hans' : ''}
+              />
+            ) : (
+              <DateTimePicker
+                style={[styles.border]}
+                onChange={(e, selectedDate) => {
+                  setValue(selectedDate);
+                  console.log(selectedDate);
+                  if (!param[0] && param[1]) {
+                    setVisible(false);
+                  }
+                }}
+                display={param[0]}
+                mode={param[1]}
+                value={value}
+                minimumDate={
+                  maxMin ? new Date(2012, 10, 2, 8, 12, 5, 10) : undefined
+                }
+                maximumDate={
+                  maxMin ? new Date(2032, 10, 10, 13, 42, 30, 1) : undefined
+                }
+                minuteInterval={minuteInterval ? 5 : 1}
+                disabled={disabled}
+                is24Hour={is24Hour}
+                locale={local ? 'zh-Hans' : ''}
+              />
+            )}
           </View>
         </View>
       </Modal>
@@ -147,6 +225,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif-condensed-light',
   },
   button: {
+    flexDirection: 'row',
     marginBottom: 16,
     marginLeft: 16,
     marginRight: 16,
@@ -180,8 +259,10 @@ const styles = StyleSheet.create({
     }),
   },
   border: {
-    borderWidth: 1,
-    borderColor: 'red',
+    marginHorizontal: 16,
+    // borderWidth: 1,
+    // borderColor: 'red',
+    height: '50%',
   },
   picker: {
     borderWidth: 1,

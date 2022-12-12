@@ -22,8 +22,6 @@ public class PickerPackage implements ReactPackage {
   @NonNull
   @Override
   public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
-    return Arrays.<ViewManager>asList(
-      new PickerViewManager(reactContext)
-    );
+    return Arrays.<ViewManager>asList(new PickerViewManager(reactContext));
   }
 }

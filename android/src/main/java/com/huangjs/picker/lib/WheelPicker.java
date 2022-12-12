@@ -3,7 +3,6 @@ package com.huangjs.picker.lib;
 import android.content.Context;
 import android.graphics.Camera;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -178,11 +177,6 @@ public class WheelPicker extends View implements IDebug, IWheelPicker, Runnable 
   private int mSelectedItemPosition;
 
   /**
-   * 临时位置
-   */
-  private int mTempSelectedItemPosition = -1;
-
-  /**
    * 当前被选中的数据项所显示的数据在数据源中的位置
    *
    * @see #getCurrentItemPosition()
@@ -298,7 +292,6 @@ public class WheelPicker extends View implements IDebug, IWheelPicker, Runnable 
     mItemTextSize = (int) PixelUtil.toPixelFromDIP(18);
     mVisibleItemCount = 5;
     mSelectedItemPosition = 0;
-    mTempSelectedItemPosition = -1;
     hasSameWidth = false;
     mTextMaxWidthPosition = -1;
     mMaxWidthText = "";
@@ -505,10 +498,6 @@ public class WheelPicker extends View implements IDebug, IWheelPicker, Runnable 
 
   @Override
   protected void onDraw(Canvas canvas) {
-    if (mTempSelectedItemPosition != -1) {
-      setSelectedItemPosition(mTempSelectedItemPosition, true);
-      mTempSelectedItemPosition = -1;
-    }
     if (null != mOnWheelChangeListener) mOnWheelChangeListener.onWheelScrolled(mScrollOffsetY);
     if (mData.size() == 0) return;
     int drawnDataStartPos = -mScrollOffsetY / mItemHeight - mHalfDrawnItemCount;
@@ -736,17 +725,18 @@ public class WheelPicker extends View implements IDebug, IWheelPicker, Runnable 
       int position = (-mScrollOffsetY / mItemHeight + mSelectedItemPosition) % mData.size();
       position = position < 0 ? position + mData.size() : position;
       if (isDebug) Log.i(TAG, position + ":" + mData.get(position) + ":" + mScrollOffsetY);
+      if (null != mOnWheelChangeListener && isTouchTriggered) {
+        mOnWheelChangeListener.onWheelScrollStateChanged(SCROLL_STATE_IDLE);
+      }
       mCurrentItemPosition = position;
       if (null != mOnItemSelectedListener && isTouchTriggered)
         mOnItemSelectedListener.onItemSelected(this, mData.get(position), position);
       if (null != mOnWheelChangeListener && isTouchTriggered) {
         mOnWheelChangeListener.onWheelSelected(position);
       }
-      if (null != mOnWheelChangeListener)
-        mOnWheelChangeListener.onWheelScrollStateChanged(SCROLL_STATE_IDLE);
     }
     if (mScroller.computeScrollOffset()) {
-      if (null != mOnWheelChangeListener)
+      if (null != mOnWheelChangeListener && isTouchTriggered)
         mOnWheelChangeListener.onWheelScrollStateChanged(SCROLL_STATE_SCROLLING);
       mScrollOffsetY = mScroller.getCurrY();
       postInvalidate();
@@ -795,7 +785,7 @@ public class WheelPicker extends View implements IDebug, IWheelPicker, Runnable 
 
   @Override
   public void setSelectedItemPosition(int position) {
-    this.mTempSelectedItemPosition = position;
+    setSelectedItemPosition(position, false);
   }
 
   public void setSelectedItemPosition(int position, final boolean animated) {
@@ -836,7 +826,6 @@ public class WheelPicker extends View implements IDebug, IWheelPicker, Runnable 
   public void setData(List data) {
     if (null == data) throw new NullPointerException("WheelPicker's data can not be null!");
     mData = data;
-
     // 重置位置
     if (mSelectedItemPosition > data.size() - 1 || mCurrentItemPosition > data.size() - 1) {
       mSelectedItemPosition = mCurrentItemPosition = data.size() - 1;

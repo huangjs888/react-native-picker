@@ -2,20 +2,25 @@
  * @Author: Huangjs
  * @Date: 2022-11-14 14:47:03
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-11-23 16:53:16
+ * @LastEditTime: 2022-12-09 17:04:41
  * @Description: ******
  */
 import React, { useMemo, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
-import DateTimePickerIOS from '@react-native-community/datetimepicker';
+import { StyleSheet, Platform, View } from 'react-native';
+import RNDateTimePicker, {
+  IOSNativeProps,
+} from '@react-native-community/datetimepicker';
 import DateTimePickerAndroid from './datetime';
+import { DateTimePickerProps, ChangeEvent } from './index';
 import { useDerivedState } from './useDerivedState';
 import { getValidDate, fixTimeZoneOffset, fixDateTimeRange } from './common';
 
 const DateTimePicker =
-  Platform.OS === 'android' ? DateTimePickerAndroid : DateTimePickerIOS;
+  Platform.OS === 'android' ? DateTimePickerAndroid : RNDateTimePicker;
 
-function ComposeDateTimePicker(props) {
+function ComposeDateTimePicker(
+  props: DateTimePickerProps | IOSNativeProps | any,
+) {
   const {
     style,
     onChange,
@@ -26,15 +31,15 @@ function ComposeDateTimePicker(props) {
     minuteInterval,
     ...restProps
   } = props;
-  if (!value) {
+  if (!(value instanceof Date)) {
     throw new Error('A date or time must be specified as `value` prop');
   }
   // 可以受控可以非受控
-  const [currentDate, setCurrentDate] = useDerivedState(value);
+  const [currentDate, setCurrentDate] = useDerivedState<Date>(value);
   // 修正时区值
   const tzoim = useMemo(
-    () => fixTimeZoneOffset(timeZoneOffsetInMinutes, value.getTimezoneOffset()),
-    [value, timeZoneOffsetInMinutes],
+    () => fixTimeZoneOffset(timeZoneOffsetInMinutes),
+    [timeZoneOffsetInMinutes],
   );
   // 修正最大最小时间
   const dateRange = useMemo(
@@ -60,7 +65,7 @@ function ComposeDateTimePicker(props) {
     return new Date(tempDate.setMilliseconds(0));
   }, [currentDate, dateRange, tzoim, minuteInterval]);
   const _onChange = useCallback(
-    (event, dt, key) => {
+    (event: ChangeEvent, dt: Date, key: string) => {
       let year = selectDate.getFullYear();
       let month = selectDate.getMonth();
       let date = selectDate.getDate();
@@ -78,7 +83,7 @@ function ComposeDateTimePicker(props) {
         second = dt.getSeconds();
         millisecond = dt.getMilliseconds();
       }
-      let timeStamp = new Date(
+      let tempDate = new Date(
         year,
         month,
         date,
@@ -88,14 +93,14 @@ function ComposeDateTimePicker(props) {
         millisecond,
       );
       // 如果选择的时间跟之前时间一样，则不触发onChange事件，也不更新
-      if (timeStamp === selectDate.getTime()) {
+      if (tempDate.getTime() === selectDate.getTime()) {
         return;
       }
-      // 调回时区偏移量
-      timeStamp = new Date(timeStamp).setMinutes(
-        new Date(timeStamp).getMinutes() - tzoim,
+      tempDate = getValidDate(
+        tempDate.setMinutes(tempDate.getMinutes() - tzoim), // 调回时区偏移量
+        dateRange,
+        false,
       );
-      const tempDate = getValidDate(timeStamp, dateRange, false);
       const unifiedEvent = {
         ...event,
         nativeEvent: {
@@ -108,20 +113,27 @@ function ComposeDateTimePicker(props) {
     },
     [onChange, selectDate, setCurrentDate, dateRange, tzoim],
   );
+  const aMinWidth = restProps.locale === 'zh-Hans' ? 134 : 148;
+  const delt = restProps.locale === 'zh-Hans' ? 36 : 30;
+  const bMinWidth = 40 + (restProps.is24Hour ? 0 : delt);
   return (
     <View style={StyleSheet.flatten([styles.wrapper, style])}>
       <DateTimePicker
         {...restProps}
+        style={StyleSheet.flatten([styles.flexA, { minWidth: aMinWidth }])}
+        cyclic
         display="spinner"
         mode="date"
-        onChange={(e, d) => _onChange(e, d, 'date')}
+        onChange={(e: ChangeEvent, d: Date) => _onChange(e, d, 'date')}
         value={selectDate}
       />
       <DateTimePicker
         {...restProps}
+        style={StyleSheet.flatten([styles.flexB, { minWidth: bMinWidth }])}
+        cyclic
         display="spinner"
         mode="time"
-        onChange={(e, t) => _onChange(e, t, 'time')}
+        onChange={(e: ChangeEvent, t: Date) => _onChange(e, t, 'time')}
         value={selectDate}
         minuteInterval={minuteInterval}
       />
@@ -134,6 +146,7 @@ export default ComposeDateTimePicker;
 const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
-    flex: 1,
   },
+  flexA: { flex: 1, marginRight: 16 },
+  flexB: { flex: 1 },
 });

@@ -13,14 +13,10 @@ import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
-import com.huangjs.picker.lib.WheelPicker;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class PickerViewManager extends SimpleViewManager<PickerView> {
-
-  private static final Handler mSDKHandler = new Handler(Looper.getMainLooper());
   private static final String REACT_CLASS = "PickerView";
   private final ReactApplicationContext reactAppContext;
 
@@ -52,25 +48,21 @@ public class PickerViewManager extends SimpleViewManager<PickerView> {
       export = MapBuilder.newHashMap();
     }
     export.put("onChange", MapBuilder.of("registrationName", "onChange"));
+    export.put("onScrollStateChange", MapBuilder.of("registrationName", "onScrollStateChange"));
     return export;
+  }
+
+  @ReactProp(name = "selectedIndex")
+  public void setSelectedIndex(final PickerView picker, final int index) {
+    if (picker != null) {
+      picker.setSelectedIndex(index);
+    }
   }
 
   @ReactProp(name = "items")
   public void setData(PickerView picker, ReadableArray items) {
     if (picker != null) {
-      ArrayList<String> data = new ArrayList<>();
-      for (int i = 0; i < items.size(); i++) {
-        data.add(items.getString(i));
-      }
-      picker.setData(data);
-    }
-  }
-
-  @ReactProp(name = "selectedIndex")
-  public void setSelectedIndex(final PickerView picker, final int index) {
-    if (picker != null && picker.getState() == WheelPicker.SCROLL_STATE_IDLE) {
-      picker.setSelectedItemPosition(index);
-      picker.invalidate();
+      picker.setData(items.toArrayList());
     }
   }
 

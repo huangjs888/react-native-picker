@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-11-23 15:51:05
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-11-23 16:03:00
+ * @LastEditTime: 2022-12-05 20:28:12
  * @Description: ******
  */
 export const weekMap = ['日', '一', '二', '三', '四', '五', '六'];
@@ -35,20 +35,27 @@ export const monthsAbbMap = [
   'Nov',
   'Dec',
 ];
-export const maxDayCount = 10000;
 export const dayMilliseconds = 24 * 60 * 60 * 1000;
-export const fixTimeZoneOffset = (value, offset) => {
+// datatime下1000天范围，这是苹果默认的范围，但是android太卡
+// export const maxDayCount = 10000;
+// 上下两年范围内
+export const maxDayCount = 1500;
+// 1000年范围，这是苹果默认的时间范围，但是android太卡
+// export const minMTime = -62135582743000; // 0001-01-01 12:00:00
+// export const maxMTime = 253433851200000; // 10000-01-01 12:00:00
+// 300年的范围
+export const minMTime = -2177481600000; // 1901-01-01 00:00:00
+export const maxMTime = 4133951999000; // 2200-12-31 23:59:59
+export const fixTimeZoneOffset = (value?: number) => {
   if ((!value && value !== 0) || value > 60 * 18 || value < -60 * 18) {
     return 0;
   }
-  return value + offset;
+  return value + new Date().getTimezoneOffset();
 };
-const minMTime = -62135625943000;
-const maxMTime = 253433894399000;
 export const fixDateTimeRange = (
-  minimumDate,
-  maximumDate,
-  ignoreHourAndMinute,
+  minimumDate?: Date,
+  maximumDate?: Date,
+  ignoreHourAndMinute?: boolean,
 ) => {
   // 最大最小时间不存在则取默认的最大最小时间，且两个时间都需要在默认最大最小时间之内
   let minDateTime = Math.max(
@@ -85,7 +92,11 @@ export const fixDateTimeRange = (
   return [new Date(minDateTime), new Date(maxDateTime)];
 };
 // 判断选取的时间是否在最大最小时间之间（参考苹果的逻辑）
-export const getValidDate = (timeStamp, dateRange, ignoreHourAndMinute) => {
+export const getValidDate = (
+  timeStamp: number,
+  dateRange: Date[],
+  ignoreHourAndMinute: boolean,
+) => {
   const [minDate, maxDate] = dateRange;
   let validDate = new Date(timeStamp);
   // 如果小于最小时间，直接取最小时间
