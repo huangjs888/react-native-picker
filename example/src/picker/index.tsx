@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 15:58:16
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-12 09:17:12
+ * @LastEditTime: 2022-12-12 09:38:44
  * @Description: ******
  */
 import React, { useState } from 'react';
@@ -16,8 +16,7 @@ import {
   Switch,
   Text,
 } from 'react-native';
-import {
-  Picker,
+import Picker, {
   DateTimePicker,
   ComposeDateTimePicker,
 } from '@huangjs888/react-native-picker';
