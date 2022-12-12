@@ -2,99 +2,75 @@
  * @Author: Huangjs
  * @Date: 2022-05-27 10:16:38
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-08-15 15:58:08
+ * @LastEditTime: 2022-12-12 09:38:53
  * @Description: ******
 -->
-# react-native-amap
+# react-native-picker
 
 ## Getting started
 
-`$ npm install @huangjs888/react-native-amap --save`
+`$ npm install @huangjs888/react-native-picker --save`
 
 ## Usage
 ```javascript
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Platform, View } from 'react-native';
-import AMapView, {
-  Mesh,
-  Marker,
-  AMapModule,
-} from '@huangjs888/react-native-amap';
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import Picker, {
+  DateTimePicker,
+  ComposeDateTimePicker,
+} from '@huangjs888/react-native-picker';
+
+const items = [
+  { label: 'Sin数据', value: 'key0' },
+  { label: 'Cos数据', value: 'key1' },
+  { label: 'Tan数据', value: 'key3' },
+  { label: 'Cat数据', value: 'key4' },
+  { label: 'Dog数据', value: 'key5' },
+  { label: 'Bob数据', value: 'key6' },
+  { label: 'Key数据', value: 'key7' },
+  { label: 'Bla数据', value: 'key8' },
+  { label: 'Edg数据', value: 'key9' },
+];
 
 export default () => {
-  const markerRef = useRef(null);
-  const [infoData, setInfoData] = useState(null);
-  const [valueDomain, setValueDomain] = useState(null);
-  const onRendered = useCallback((e) => {
-    console.log(e.nativeEvent);
-    setLoading(false);
-    const { type, message } = e.nativeEvent;
-    if (type === 'error') {
-      console.log(message);
-    } else {
-    }
-  }, []);
-  const mapInitCompleted = useCallback(() => {
-    fetch().then(() => {
-      setValueDomain({
-        range: [0, 20, 40, 60, 80, 100],
-        color: [
-          'rgb(0,228,0)',
-          'rgb(255,255,0)',
-          'rgb(255,126,0)',
-          'rgb(255,0,0)',
-          'rgb(153,0,76)',
-          'rgb(126,0,35)',
-        ],
-        opacity: 0.8,
-      });
-      setInfoData({
-        position: {
-          latitude: 31.552206,
-          longitude: 120.262698,
-        },
-        point: [],
-      });
-    });
-  }, []);
-  useEffect(() => {
-    AMapModule.init(
-      Platform.select({
-        android: '7baf5432c0bc7010fd21986e57e5c032',
-        ios: '7baf5432c0bc7010fd21986e57e5c032',
-      }),
-    );
-  }, []);
+  const [selected, setSelected] = useState('key5');
+  const [value, setValue] = useState(new Date());
   return (
     <View>
-      <AMapView
-        scaleControlsEnabled
-        zoomControlsEnabled
-        indoorViewEnabled
-        locationEnabled
-        compassEnabled
-        onLongClick={(e) => {
-          console.log(e.nativeEvent);
+      <Picker
+        onValueChange={(v) => {
+          setSelected(v);
         }}
-        onInitialized={mapInitCompleted}>
-        <Mesh
-          dataSource={infoData}
-          valueDomain={valueDomain}
-          onRendered={onRendered}
-        />
-        <Marker
-          ref={markerRef}
-          opacity={0}
-          title="拾取信息"
-          infoWindowEnable
-          infoWindowOffset={{ x: 0, y: 72 }}
-          onInfoWindowClick={() =>
-            markerRef.current && markerRef.current.hideInfoWindow()
-          }
-          description="哈哈哈"
-        />
-      </AMapView>
+        selectedValue={selected}
+        indicator={false}
+        curtain={true}>
+        {items.map((item) => (
+          <Picker.Item key={item.value} value={item.value} label={item.label} />
+        ))}
+      </Picker>
+      <DateTimePicker
+        display="spinner"
+        mode="date"
+        onChange={(e, date) => {
+          setValue(date);
+          console.log(date);
+        }}
+        value={value}
+        minimumDate={new Date(2012, 10, 2, 8, 12, 5, 10)}
+        maximumDate={new Date(2032, 10, 10, 13, 42, 30, 1)}
+        locale="zh-Hans"
+      />
+      <ComposeDateTimePicker
+        onChange={(e, date) => {
+          setValue(date);
+          console.log(date);
+        }}
+        value={value}
+        locale="zh-Hans"
+        is24Hour={is24Hour}
+        minuteInterval={5}
+      />
     </View>
   );
 };
