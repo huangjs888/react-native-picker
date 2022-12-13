@@ -2,19 +2,19 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 10:35:07
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-09 16:59:48
+ * @LastEditTime: 2022-12-12 13:34:58
  * @Description: ******
  */
 import React from 'react';
 import {
   Platform,
-  NativeSyntheticEvent,
-  StyleProp,
-  ViewStyle,
-  ViewProps,
+  type StyleProp,
+  type ViewStyle,
+  type ViewProps,
+  type NativeSyntheticEvent,
 } from 'react-native';
 import RNDateTimePicker, {
-  AndroidNativeProps,
+  type AndroidNativeProps,
 } from '@react-native-community/datetimepicker';
 import DateTimePickerAndroid from './datetime';
 

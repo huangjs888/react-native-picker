@@ -2,16 +2,16 @@
  * @Author: Huangjs
  * @Date: 2022-11-14 14:47:03
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-09 17:04:41
+ * @LastEditTime: 2022-12-12 13:34:29
  * @Description: ******
  */
 import React, { useMemo, useCallback } from 'react';
 import { StyleSheet, Platform, View } from 'react-native';
 import RNDateTimePicker, {
-  IOSNativeProps,
+  type IOSNativeProps,
 } from '@react-native-community/datetimepicker';
 import DateTimePickerAndroid from './datetime';
-import { DateTimePickerProps, ChangeEvent } from './index';
+import type { DateTimePickerProps, ChangeEvent } from './index';
 import { useDerivedState } from './useDerivedState';
 import { getValidDate, fixTimeZoneOffset, fixDateTimeRange } from './common';
 

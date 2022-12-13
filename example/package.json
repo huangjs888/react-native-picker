@@ -5,16 +5,14 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start",
-    "server": "node server/index.js",
-    "debugger": "node --inspect server/index.js"
+    "start": "react-native start"
   },
   "dependencies": {
     "@huangjs888/react-native-picker": "link:../",
     "@react-native-community/datetimepicker": "^6.7.1",
     "@react-native-picker/picker": "^2.4.8",
     "react": "18.1.0",
-    "react-native": "0.70.5"
+    "react-native": "0.70.6"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",

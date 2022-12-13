@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-11-08 10:42:40
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-09 16:44:54
+ * @LastEditTime: 2022-12-12 13:43:24
  * @Description: ******
  */
 import React, { useRef, useMemo, useCallback } from 'react';
@@ -24,11 +24,11 @@ import {
 import {
   PickerAndroid,
   ScrollState,
-  ScrollStateEvent,
-  ChangeEvent,
+  type ScrollStateEvent,
+  type ChangeEvent,
 } from '../picker';
-import { PickerItemProps } from '../picker/PickerItem';
-import { DateTimePickerProps } from './index';
+import type { PickerItemProps } from '../picker/PickerItem';
+import type { DateTimePickerProps } from './index';
 
 const minMYear = new Date(minMTime).getFullYear();
 const maxMYear = new Date(maxMTime).getFullYear();
@@ -47,7 +47,7 @@ function DateTimePicker(props: DateTimePickerProps) {
     throw new Error('A date or time must be specified as `value` prop');
   }
   // 记录选择器滚动状态
-  const scrollStateRef = useRef<any>({});
+  const scrollStateRef = useRef<{ [key: string]: ScrollState }>({});
   // 记录初始时间
   const initValueRef = useRef<Date | null>(null);
   // 可以受控可以非受控

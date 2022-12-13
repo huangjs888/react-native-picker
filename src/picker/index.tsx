@@ -2,21 +2,26 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 10:35:07
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-09 16:44:32
+ * @LastEditTime: 2022-12-12 14:52:20
  * @Description: ******
  */
-import React, { Children, ElementRef, ReactElement, Component } from 'react';
+import React, {
+  Component,
+  Children,
+  type ElementRef,
+  type ReactElement,
+} from 'react';
 import {
   Platform,
   StyleSheet,
   View,
-  StyleProp,
-  ViewStyle,
-  ViewProps,
-  NativeSyntheticEvent,
   requireNativeComponent,
+  type StyleProp,
+  type ViewStyle,
+  type ViewProps,
+  type NativeSyntheticEvent,
 } from 'react-native';
-import PickerItem, { PickerItemProps } from './PickerItem';
+import PickerItem, { type PickerItemProps } from './PickerItem';
 import { PickerIOS } from '@react-native-picker/picker';
 
 export enum ScrollState {
