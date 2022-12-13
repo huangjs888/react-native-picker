@@ -1,7 +1,7 @@
 {
   "name": "@huangjs888/react-native-picker",
   "title": "React Native Picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "react native component implement picker and datetime-picker",
   "main": "src/index",
   "source": "src/index",
