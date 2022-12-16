@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 15:58:16
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-12 09:38:44
+ * @LastEditTime: 2022-12-15 11:45:33
  * @Description: ******
  */
 import React, { useState } from 'react';
@@ -33,17 +33,26 @@ const items = [
   { label: 'Edg数据', value: 'key9' },
 ];
 
+const paramMap: {
+  [key: string]: any;
+} = {
+  a: 'spinner',
+  b: 'datetime',
+  c: 'date',
+  d: 'time',
+};
+
 export default () => {
-  const [selectedA, setSelectedA] = useState('key5');
-  const [value, setValue] = useState(new Date());
-  const [disabled, setDisabled] = useState(false);
-  const [minuteInterval, setMinuteInterval] = useState(false);
-  const [maxMin, setMaxMin] = useState(false);
-  const [is24Hour, setIs24Hour] = useState(false);
-  const [local, setLocal] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [param, setParam] = useState([]);
-  const click = (display, mode) => {
+  const [selectedA, setSelectedA] = useState<string | number>('key5');
+  const [value, setValue] = useState<Date>(new Date());
+  const [disabled, setDisabled] = useState<boolean>(false);
+  const [minuteInterval, setMinuteInterval] = useState<boolean>(false);
+  const [maxMin, setMaxMin] = useState<boolean>(false);
+  const [is24Hour, setIs24Hour] = useState<boolean>(false);
+  const [local, setLocal] = useState<boolean>(false);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [param, setParam] = useState<string[]>(['', '']);
+  const click = (display: string, mode: string) => {
     setVisible(true);
     setParam([display, mode]);
   };
@@ -51,8 +60,8 @@ export default () => {
     <View style={styles.view}>
       <Picker
         style={[styles.picker]}
-        onValueChange={(v) => {
-          setSelectedA(v);
+        onValueChange={(v?: string | number) => {
+          v && setSelectedA(v);
           // console.log(v);
         }}
         selectedValue={selectedA}
@@ -63,40 +72,22 @@ export default () => {
         ))}
       </Picker>
       <View style={[styles.button]}>
-        <Button
-          title="no display mode"
-          onPress={() => click(undefined, undefined)}
-        />
+        <Button title="no display mode" onPress={() => click('', '')} />
       </View>
       <View style={[styles.button]}>
-        <Button title="spinner-date" onPress={() => click('spinner', 'date')} />
+        <Button title="spinner-date" onPress={() => click('a', 'c')} />
       </View>
       <View style={[styles.button]}>
-        <Button
-          title="spinner-datetime"
-          onPress={() => click('spinner', 'datetime')}
-        />
+        <Button title="spinner-datetime" onPress={() => click('a', 'b')} />
       </View>
       <View style={[styles.button]}>
-        <Button title="spinner-time" onPress={() => click('spinner', 'time')} />
+        <Button title="spinner-time" onPress={() => click('a', 'd')} />
       </View>
       <View style={[styles.button]}>
-        <Button
-          title="no display-date"
-          onPress={() => click(undefined, 'date')}
-        />
+        <Button title="no display-date" onPress={() => click('', 'c')} />
       </View>
       <View style={[styles.button]}>
-        <Button
-          title="no display-datetime"
-          onPress={() => click(undefined, 'datetime')}
-        />
-      </View>
-      <View style={[styles.button]}>
-        <Button
-          title="no display-time"
-          onPress={() => click(undefined, 'time')}
-        />
+        <Button title="no display-time" onPress={() => click('', 'd')} />
       </View>
       <Modal
         animationType="fade"
@@ -157,8 +148,8 @@ export default () => {
             {!param[0] && !param[1] ? (
               <ComposeDateTimePicker
                 style={[styles.border]}
-                onChange={(e, selectedDate) => {
-                  setValue(selectedDate);
+                onChange={(_: any, selectedDate?: Date) => {
+                  selectedDate && setValue(selectedDate);
                   console.log(selectedDate);
                   if (!param[0] && param[1]) {
                     setVisible(false);
@@ -179,15 +170,15 @@ export default () => {
             ) : (
               <DateTimePicker
                 style={[styles.border]}
-                onChange={(e, selectedDate) => {
-                  setValue(selectedDate);
+                onChange={(_: any, selectedDate?: Date) => {
+                  selectedDate && setValue(selectedDate);
                   console.log(selectedDate);
                   if (!param[0] && param[1]) {
                     setVisible(false);
                   }
                 }}
-                display={param[0]}
-                mode={param[1]}
+                display={paramMap[param[0]]}
+                mode={paramMap[param[1]]}
                 value={value}
                 minimumDate={
                   maxMin ? new Date(2012, 10, 2, 8, 12, 5, 10) : undefined

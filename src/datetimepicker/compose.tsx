@@ -2,25 +2,20 @@
  * @Author: Huangjs
  * @Date: 2022-11-14 14:47:03
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-12 13:34:29
+ * @LastEditTime: 2022-12-16 13:49:36
  * @Description: ******
  */
 import React, { useMemo, useCallback } from 'react';
-import { StyleSheet, Platform, View } from 'react-native';
-import RNDateTimePicker, {
-  type IOSNativeProps,
-} from '@react-native-community/datetimepicker';
-import DateTimePickerAndroid from './datetime';
-import type { DateTimePickerProps, ChangeEvent } from './index';
+import { Platform, StyleSheet, View } from 'react-native';
+import DateTimePicker, {
+  type DateTimeAndroidProps,
+  type DateTimeIOSProps,
+  type DateTimePickerEvent,
+} from './index';
 import { useDerivedState } from './useDerivedState';
 import { getValidDate, fixTimeZoneOffset, fixDateTimeRange } from './common';
 
-const DateTimePicker =
-  Platform.OS === 'android' ? DateTimePickerAndroid : RNDateTimePicker;
-
-function ComposeDateTimePicker(
-  props: DateTimePickerProps | IOSNativeProps | any,
-) {
+function Compose(props: any) {
   const {
     style,
     onChange,
@@ -65,7 +60,11 @@ function ComposeDateTimePicker(
     return new Date(tempDate.setMilliseconds(0));
   }, [currentDate, dateRange, tzoim, minuteInterval]);
   const _onChange = useCallback(
-    (event: ChangeEvent, dt: Date, key: string) => {
+    (event: DateTimePickerEvent, key: string, dt?: Date) => {
+      if (!dt || !event.nativeEvent.timestamp) {
+        return;
+      }
+      const newDate = dt || new Date(event.nativeEvent.timestamp);
       let year = selectDate.getFullYear();
       let month = selectDate.getMonth();
       let date = selectDate.getDate();
@@ -74,14 +73,14 @@ function ComposeDateTimePicker(
       let second = selectDate.getSeconds();
       let millisecond = selectDate.getMilliseconds();
       if (key === 'date') {
-        year = dt.getFullYear();
-        month = dt.getMonth();
-        date = dt.getDate();
+        year = newDate.getFullYear();
+        month = newDate.getMonth();
+        date = newDate.getDate();
       } else if (key === 'time') {
-        hour = dt.getHours();
-        minute = dt.getMinutes();
-        second = dt.getSeconds();
-        millisecond = dt.getMilliseconds();
+        hour = newDate.getHours();
+        minute = newDate.getMinutes();
+        second = newDate.getSeconds();
+        millisecond = newDate.getMilliseconds();
       }
       let tempDate = new Date(
         year,
@@ -101,7 +100,7 @@ function ComposeDateTimePicker(
         dateRange,
         false,
       );
-      const unifiedEvent = {
+      const unifiedEvent: DateTimePickerEvent = {
         ...event,
         nativeEvent: {
           ...event.nativeEvent,
@@ -124,7 +123,7 @@ function ComposeDateTimePicker(
         cyclic
         display="spinner"
         mode="date"
-        onChange={(e: ChangeEvent, d: Date) => _onChange(e, d, 'date')}
+        onChange={(e: DateTimePickerEvent, d?: Date) => _onChange(e, 'date', d)}
         value={selectDate}
       />
       <DateTimePicker
@@ -133,7 +132,7 @@ function ComposeDateTimePicker(
         cyclic
         display="spinner"
         mode="time"
-        onChange={(e: ChangeEvent, t: Date) => _onChange(e, t, 'time')}
+        onChange={(e: DateTimePickerEvent, t?: Date) => _onChange(e, 'time', t)}
         value={selectDate}
         minuteInterval={minuteInterval}
       />
@@ -141,7 +140,15 @@ function ComposeDateTimePicker(
   );
 }
 
-export default ComposeDateTimePicker;
+function ComposeIOS(props: DateTimeIOSProps) {
+  return <Compose {...props} />;
+}
+
+function ComposeAndroid(props: DateTimeAndroidProps) {
+  return <Compose {...props} />;
+}
+
+export default Platform.OS === 'ios' ? ComposeIOS : ComposeAndroid;
 
 const styles = StyleSheet.create({
   wrapper: {

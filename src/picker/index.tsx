@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 10:35:07
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-12 14:52:20
+ * @LastEditTime: 2022-12-15 14:13:39
  * @Description: ******
  */
 import React, {
@@ -16,15 +16,28 @@ import {
   StyleSheet,
   View,
   requireNativeComponent,
+  type NativeSyntheticEvent,
   type StyleProp,
   type ViewStyle,
   type ViewProps,
-  type NativeSyntheticEvent,
 } from 'react-native';
-import PickerItem, { type PickerItemProps } from './PickerItem';
-import { PickerIOS } from '@react-native-picker/picker';
+import PickerAndroidItem, {
+  type PickerItemProps as PickerAndroidItemProps,
+} from './PickerItem';
+import {
+  Picker as PickerIOS,
+  type PickerProps as PickerIOSProps,
+  type PickerItemProps as PickerIOSItemProps,
+} from '@react-native-picker/picker';
 
-export enum ScrollState {
+export type PickerEvent = NativeSyntheticEvent<
+  Readonly<{
+    itemValue: string | number;
+    itemIndex: number;
+  }>
+>;
+
+export enum PickerAndroidScrollState {
   /**
    * 选择器处于静止状态
    */
@@ -41,20 +54,14 @@ export enum ScrollState {
   SCROLLING,
 }
 
-export type ScrollStateEvent = NativeSyntheticEvent<
+export type PickerAndroidScrollEvent = NativeSyntheticEvent<
   Readonly<{
-    state: ScrollState;
+    state: PickerAndroidScrollState;
   }>
 >;
 
-export type ChangeEvent = NativeSyntheticEvent<
-  Readonly<{
-    value: string | number;
-    index: number;
-  }>
->;
-
-export interface PickerProps extends ViewProps {
+export type { PickerIOSProps, PickerIOSItemProps, PickerAndroidItemProps };
+export interface PickerAndroidProps extends ViewProps {
   testID?: string;
 
   /**
@@ -180,52 +187,48 @@ export interface PickerProps extends ViewProps {
   /**
    * 选择器选择值改变事件，参数：当前选择的值和索引
    */
-  onValueChange?: (value?: string | number, index?: number) => void;
+  onValueChange?: (itemValue: string | number, itemIndex: number) => void;
 
   /**
    * 选择器改变事件，参数：含有选择的值和索引的选择事件
    */
-  onChange?: (event: ChangeEvent) => void;
+  onChange?: (event: PickerEvent) => void;
 
   /**
    * 选择器滚轮状态变化事件，参数：含有当前状态值得状态事件
    */
-  onScrollStateChange?: (event: ScrollStateEvent) => void;
+  onScrollStateChange?: (event: PickerAndroidScrollEvent) => void;
 
-  children?: ReactElement<PickerItemProps>[];
+  children?: ReactElement<PickerAndroidItemProps>[];
 }
 
-type ItemType = {
-  value?: string | number;
-  label?: string;
-};
-
-type State = {
+type PickerAndroidState = {
   selectedIndex: number;
-  items: Array<ItemType>;
+  items: Array<PickerAndroidItemProps>;
 };
-
-class Picker extends Component<PickerProps, State> {
-  constructor(props: PickerProps) {
+class PickerAndroid extends Component<PickerAndroidProps, PickerAndroidState> {
+  constructor(props: PickerAndroidProps) {
     super(props);
   }
 
   _picker: ElementRef<typeof NativePicker> | null = null;
 
-  state: State = {
+  state: PickerAndroidState = {
     selectedIndex: 0,
     items: [],
   };
 
-  static Item: typeof PickerItem = PickerItem;
+  static Item: typeof PickerAndroidItem = PickerAndroidItem;
 
-  static getDerivedStateFromProps(props: PickerProps): State {
+  static getDerivedStateFromProps(
+    props: PickerAndroidProps,
+  ): PickerAndroidState {
     let selectedIndex: number = 0;
-    const items: Array<ItemType> = [];
+    const items: Array<PickerAndroidItemProps> = [];
     // 将传入的item子组件属性数据提取出来作为state，传入本地组件items
     Children.forEach(
       props.children || [],
-      function (child: ReactElement<PickerItemProps>, index: number) {
+      function (child: ReactElement<PickerAndroidItemProps>, index: number) {
         if (child.props.value === props.selectedValue) {
           selectedIndex = index;
         }
@@ -234,24 +237,27 @@ class Picker extends Component<PickerProps, State> {
     );
     return { selectedIndex, items };
   }
-
-  _onChange = (e: ChangeEvent) => {
-    const { index } = e.nativeEvent;
+  _onChange = (e: PickerEvent) => {
+    const { itemIndex } = e.nativeEvent;
     if (this.props?.onValueChange) {
-      this.props.onValueChange(this.state.items[index].value, index);
+      this.props.onValueChange(
+        this.state.items[itemIndex].value || '',
+        itemIndex,
+      );
     }
     if (this.props?.onChange) {
-      this.props.onChange({
+      const event: PickerEvent = {
         ...e,
         nativeEvent: {
-          index,
-          value: this.state.items[index].value || 0,
+          itemIndex,
+          itemValue: this.state.items[itemIndex].value || '',
         },
-      });
+      };
+      this.props.onChange(event);
     }
 
     // picker应该是完全受控组件，使用该组件，onChange时应该同时更改selectedValue，否则撤回native组件的更改
-    if (this._picker && this.state.selectedIndex !== index) {
+    if (this._picker && this.state.selectedIndex !== itemIndex) {
       this._picker.setNativeProps({
         selectedIndex: this.state.selectedIndex,
       });
@@ -335,7 +341,7 @@ class Picker extends Component<PickerProps, State> {
     );
   }
 }
-type NativeProps = PickerProps & {
+type NativeProps = PickerAndroidProps & {
   items: Array<string | number>;
   selectedIndex?: number | string;
   selectTextColor?: string;
@@ -351,6 +357,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Platform.OS === 'android' ? Picker : PickerIOS;
+export { PickerIOS, PickerAndroid };
 
-export const PickerAndroid = Picker;
+export default Platform.OS === 'ios' ? PickerIOS : PickerAndroid;

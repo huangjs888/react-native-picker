@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-11-08 10:42:40
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-12 13:43:24
+ * @LastEditTime: 2022-12-15 13:41:09
  * @Description: ******
  */
 import React, { useRef, useMemo, useCallback } from 'react';
@@ -23,17 +23,17 @@ import {
 } from './common';
 import {
   PickerAndroid,
-  ScrollState,
-  type ScrollStateEvent,
-  type ChangeEvent,
+  PickerAndroidScrollState,
+  type PickerAndroidScrollEvent,
+  type PickerEvent,
 } from '../picker';
 import type { PickerItemProps } from '../picker/PickerItem';
-import type { DateTimePickerProps } from './index';
+import type { DateTimeAndroidProps, DateTimePickerEvent } from './index';
 
 const minMYear = new Date(minMTime).getFullYear();
 const maxMYear = new Date(maxMTime).getFullYear();
 
-function DateTimePicker(props: DateTimePickerProps) {
+function DateTimePicker(props: DateTimeAndroidProps) {
   const {
     mode,
     onChange,
@@ -47,7 +47,9 @@ function DateTimePicker(props: DateTimePickerProps) {
     throw new Error('A date or time must be specified as `value` prop');
   }
   // 记录选择器滚动状态
-  const scrollStateRef = useRef<{ [key: string]: ScrollState }>({});
+  const scrollStateRef = useRef<{ [key: string]: PickerAndroidScrollState }>(
+    {},
+  );
   // 记录初始时间
   const initValueRef = useRef<Date | null>(null);
   // 可以受控可以非受控
@@ -89,18 +91,16 @@ function DateTimePicker(props: DateTimePickerProps) {
   }, [currentDate, dateRange, tzoim, minuteInterval, mode]);
   // onChange事件
   const _onChange = useCallback(
-    (event: ChangeEvent, key: string) => {
+    (event: PickerEvent, key: string) => {
       if (
         Object.keys(scrollStateRef.current).find(
-          (k) => scrollStateRef.current[k] !== ScrollState.IDLE,
+          (k) => scrollStateRef.current[k] !== PickerAndroidScrollState.IDLE,
         )
       ) {
         // 所有滚动器都处于静止状态时才触发事件
         return;
       }
-      const { nativeEvent, ...restEvent } = event;
-      const { value: val, ...restNativeEvent } = nativeEvent;
-      const numberVal = +val;
+      const itemValue = +event.nativeEvent.itemValue;
       let year = selectDate.getFullYear();
       let month = selectDate.getMonth();
       let date = selectDate.getDate();
@@ -108,29 +108,29 @@ function DateTimePicker(props: DateTimePickerProps) {
       let minute = selectDate.getMinutes();
       // 根据选择的年月日时分，修改对应的时间值
       if (key === 'year') {
-        year = numberVal;
+        year = itemValue;
       } else if (key === 'month') {
-        month = numberVal;
+        month = itemValue;
       } else if (key === 'date') {
-        date = numberVal;
+        date = itemValue;
       } else if (key === 'ymdw') {
         const tmpDate = new Date(
           (initValueRef.current?.getTime() || 0) -
-            (maxDayCount / 2 - numberVal) * dayMilliseconds,
+            (maxDayCount / 2 - itemValue) * dayMilliseconds,
         );
         year = tmpDate.getFullYear();
         month = tmpDate.getMonth();
         date = tmpDate.getDate();
       } else if (key === 'noon') {
-        if (numberVal === 0 && hour >= 12) {
+        if (itemValue === 0 && hour >= 12) {
           hour -= 12;
-        } else if (numberVal === 1 && hour < 12) {
+        } else if (itemValue === 1 && hour < 12) {
           hour += 12;
         }
       } else if (key === 'hour') {
-        hour = numberVal;
+        hour = itemValue;
       } else if (key === 'minute') {
-        minute = numberVal;
+        minute = itemValue;
       }
       // 检查选中的日是否大于当前年月下的天数
       const count = new Date(year, month + 1, 0).getDate();
@@ -155,10 +155,9 @@ function DateTimePicker(props: DateTimePickerProps) {
         dateRange,
         mode === 'date',
       );
-      const unifiedEvent = {
-        ...restEvent,
+      const unifiedEvent: DateTimePickerEvent = {
+        type: 'set',
         nativeEvent: {
-          ...restNativeEvent,
           timestamp: tempDate.getTime(),
         },
       };
@@ -168,7 +167,7 @@ function DateTimePicker(props: DateTimePickerProps) {
     [onChange, selectDate, setCurrentDate, dateRange, tzoim, mode],
   );
   const _onScrollStateChange = useCallback(
-    (event: ScrollStateEvent, key: string) => {
+    (event: PickerAndroidScrollEvent, key: string) => {
       const { state } = event.nativeEvent;
       scrollStateRef.current[key] = +state;
     },
@@ -424,7 +423,6 @@ function DateTimePicker(props: DateTimePickerProps) {
     [],
   );
   const {
-    testID,
     style,
     itemContainerStyle,
     itemStyle,
@@ -434,7 +432,7 @@ function DateTimePicker(props: DateTimePickerProps) {
     disabled,
   } = props;
   return (
-    <View testID={testID} style={StyleSheet.flatten([styles.wrapper, style])}>
+    <View style={StyleSheet.flatten([styles.wrapper, style])}>
       {dateItems.map(
         ({ value: item, key }: { value: PickerItemProps[]; key: string }) => (
           <PickerAndroid
@@ -454,8 +452,8 @@ function DateTimePicker(props: DateTimePickerProps) {
             themeVariant={themeVariant}
             textColor={textColor}
             accentColor={accentColor}
-            onChange={(e: ChangeEvent) => _onChange(e, key)}
-            onScrollStateChange={(e: ScrollStateEvent) =>
+            onChange={(e: PickerEvent) => _onChange(e, key)}
+            onScrollStateChange={(e: PickerAndroidScrollEvent) =>
               _onScrollStateChange(e, key)
             }
             selectedValue={getSelectedValue(key, selectDate)}>

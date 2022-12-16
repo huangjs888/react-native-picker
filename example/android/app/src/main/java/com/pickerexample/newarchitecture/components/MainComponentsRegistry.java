@@ -1,4 +1,4 @@
-package com.examplepicker.newarchitecture.components;
+package com.pickerexample.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

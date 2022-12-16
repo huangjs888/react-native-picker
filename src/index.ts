@@ -2,14 +2,52 @@
  * @Author: Huangjs
  * @Date: 2022-05-11 17:49:45
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-12 13:35:20
+ * @LastEditTime: 2022-12-15 14:40:35
  * @Description: ******
  */
 
-import Picker, { type PickerProps } from './picker';
-import DateTimePicker, { type DateTimePickerProps } from './datetimepicker';
+import Picker, {
+  PickerIOS,
+  PickerAndroid,
+  PickerAndroidScrollState,
+  type PickerEvent,
+  type PickerIOSProps,
+  type PickerIOSItemProps,
+  type PickerAndroidProps,
+  type PickerAndroidItemProps,
+  type PickerAndroidScrollEvent,
+} from './picker';
+import DateTimePicker, {
+  DateTimeIOSPicker,
+  DateTimeAndroidPicker,
+  DateTimeAndroidOrignPicker,
+  type DateTimePickerEvent,
+  type DateTimeIOSProps,
+  type DateTimeAndroidProps,
+  type DateTimeAndroidOrignProps,
+} from './datetimepicker';
 import ComposeDateTimePicker from './datetimepicker/compose';
 
-export { DateTimePicker, ComposeDateTimePicker };
-export type { PickerProps, DateTimePickerProps };
+export type {
+  PickerEvent,
+  PickerAndroidScrollEvent,
+  PickerIOSProps,
+  PickerIOSItemProps,
+  PickerAndroidProps,
+  PickerAndroidItemProps,
+  DateTimePickerEvent,
+  DateTimeIOSProps,
+  DateTimeAndroidProps,
+  DateTimeAndroidOrignProps,
+};
+export {
+  DateTimePicker,
+  ComposeDateTimePicker,
+  PickerIOS,
+  PickerAndroid,
+  PickerAndroidScrollState,
+  DateTimeIOSPicker,
+  DateTimeAndroidPicker,
+  DateTimeAndroidOrignPicker,
+};
 export default Picker;

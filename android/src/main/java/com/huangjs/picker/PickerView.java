@@ -29,7 +29,7 @@ public class PickerView extends WheelPicker {
       @Override
       public void onWheelSelected(int position) {
         WritableMap eventData = Arguments.createMap();
-        eventData.putInt("index", position);
+        eventData.putInt("itemIndex", position);
         dispatchEvent(getId(), "onChange", eventData);
       }
 

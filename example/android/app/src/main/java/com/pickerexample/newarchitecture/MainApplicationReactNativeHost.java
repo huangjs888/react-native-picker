@@ -1,4 +1,4 @@
-package com.examplepicker.newarchitecture;
+package com.pickerexample.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.examplepicker.BuildConfig;
-import com.examplepicker.newarchitecture.components.MainComponentsRegistry;
-import com.examplepicker.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.pickerexample.BuildConfig;
+import com.pickerexample.newarchitecture.components.MainComponentsRegistry;
+import com.pickerexample.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
