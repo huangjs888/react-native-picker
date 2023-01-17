@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-11-08 10:42:40
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-15 13:41:09
+ * @LastEditTime: 2022-12-29 12:36:28
  * @Description: ******
  */
 import React, { useRef, useMemo, useCallback } from 'react';
@@ -283,7 +283,13 @@ function DateTimePicker(props: DateTimeAndroidProps) {
           ymdws.push({
             value: i,
             label:
-              locale === 'zh-Hans'
+              tmpDate.getFullYear() === new Date().getFullYear() &&
+              tmpDate.getMonth() === new Date().getMonth() &&
+              tmpDate.getDate() === new Date().getDate()
+                ? locale === 'zh-Hans'
+                  ? '今天'
+                  : 'Today'
+                : locale === 'zh-Hans'
                 ? `${tmpDate.getMonth() + 1}月 ${tmpDate.getDate()}日  周${
                     weekMap[tmpDate.getDay()]
                   }`

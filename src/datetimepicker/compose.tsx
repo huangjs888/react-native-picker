@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-11-14 14:47:03
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-16 13:49:36
+ * @LastEditTime: 2023-01-16 17:40:21
  * @Description: ******
  */
 import React, { useMemo, useCallback } from 'react';
@@ -114,12 +114,12 @@ function Compose(props: any) {
   );
   const aMinWidth = restProps.locale === 'zh-Hans' ? 134 : 148;
   const delt = restProps.locale === 'zh-Hans' ? 36 : 30;
-  const bMinWidth = 40 + (restProps.is24Hour ? 0 : delt);
+  const bMinWidth = 30 + (restProps.is24Hour ? 0 : delt);
   return (
     <View style={StyleSheet.flatten([styles.wrapper, style])}>
       <DateTimePicker
         {...restProps}
-        style={StyleSheet.flatten([styles.flexA, { minWidth: aMinWidth }])}
+        style={StyleSheet.flatten([styles.flex, { minWidth: aMinWidth }])}
         cyclic
         display="spinner"
         mode="date"
@@ -128,7 +128,7 @@ function Compose(props: any) {
       />
       <DateTimePicker
         {...restProps}
-        style={StyleSheet.flatten([styles.flexB, { minWidth: bMinWidth }])}
+        style={StyleSheet.flatten([styles.flex, { minWidth: bMinWidth }])}
         cyclic
         display="spinner"
         mode="time"
@@ -154,6 +154,5 @@ const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
   },
-  flexA: { flex: 1, marginRight: 16 },
-  flexB: { flex: 1 },
+  flex: { flex: 1 },
 });

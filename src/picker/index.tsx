@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 10:35:07
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-15 14:13:39
+ * @LastEditTime: 2023-01-17 16:25:31
  * @Description: ******
  */
 import React, {
@@ -299,7 +299,6 @@ class PickerAndroid extends Component<PickerAndroidProps, PickerAndroidState> {
     let _selectTextColor = accentColor;
     let _curtainColor = curtainColor;
     let _indicatorColor = indicatorColor;
-    let _background = 'transparent';
     if (themeVariant === 'dark') {
       if (!_textColor) {
         _textColor = '#aaa';
@@ -313,7 +312,6 @@ class PickerAndroid extends Component<PickerAndroidProps, PickerAndroidState> {
       if (!_indicatorColor) {
         _indicatorColor = 'rgba(255,255,255,0.1)';
       }
-      _background = '#000';
     }
     const items: Array<string | number> = this.state.items.map(
       ({ label }) => label || '',

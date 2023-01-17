@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-05-11 17:49:45
  * @LastEditors: Huangjs
- * @LastEditTime: 2022-12-15 14:40:35
+ * @LastEditTime: 2023-01-16 17:39:56
  * @Description: ******
  */
 
@@ -27,6 +27,7 @@ import DateTimePicker, {
   type DateTimeAndroidOrignProps,
 } from './datetimepicker';
 import ComposeDateTimePicker from './datetimepicker/compose';
+import { useDerivedState } from './datetimepicker/useDerivedState';
 
 export type {
   PickerEvent,
@@ -43,6 +44,7 @@ export type {
 export {
   DateTimePicker,
   ComposeDateTimePicker,
+  useDerivedState,
   PickerIOS,
   PickerAndroid,
   PickerAndroidScrollState,
