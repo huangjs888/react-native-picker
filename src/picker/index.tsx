@@ -2,7 +2,7 @@
  * @Author: Huangjs
  * @Date: 2022-10-18 10:35:07
  * @LastEditors: Huangjs
- * @LastEditTime: 2023-01-17 16:25:31
+ * @LastEditTime: 2023-01-18 11:30:30
  * @Description: ******
  */
 import React, {
@@ -317,8 +317,7 @@ class PickerAndroid extends Component<PickerAndroidProps, PickerAndroidState> {
       ({ label }) => label || '',
     );
     return (
-      <View
-        style={StyleSheet.flatten([style, [{ backgroundColor: _background }]])}>
+      <View style={StyleSheet.flatten([style])}>
         <NativePicker
           ref={(picker) => {
             this._picker = picker;
